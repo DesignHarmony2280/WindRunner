@@ -32,6 +32,10 @@ public:
     isRun = true;
   }
 
+  void stop(){
+    isRun = false;
+  }
+
   bool check(){
     currentTime = millis();
     if (currentTime >= startTime + duration){
@@ -67,12 +71,12 @@ void drive(way dir, uint8_t spd){
 Timer* driveTimer = new Timer();
 Timer* msgTimer = new Timer();
 
-uint8_t data [] = {1, 2, 3, 4};
+uint8_t data [] = {1};
+
+Packet* driveStat = new Packet (0, data, sizeof(data));
 
 void setup() {
   Serial.begin(9600);
-
-  Packet* msg = new Packet (1, data, sizeof(data));
 }
 
 void loop() {
@@ -84,6 +88,7 @@ void loop() {
 
   if (driveTimer->isRun && driveTimer->check()){
     drive(BKW, 0); // stop driving
+    txPacket(driveStat);
   }
 }
 
