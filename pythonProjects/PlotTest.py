@@ -12,40 +12,50 @@ import utilities as ut
 
 class Ui(QtWidgets.QMainWindow):
 
+    boxText = ""
+
     def __init__(self):
         super(Ui, self).__init__()
         uic.loadUi('gui.ui', self)
 
+        self.rover = ut.Rover()
+
         # Inits and populates the box with available COM Ports
         self.cbox = self.comboBox_COM
-        self.portScanner()
-
-        # Sets up the browse for write-to file button (CSV)
-        # self.buttonBrowse.clicked.connect(self.buttonBrowse_clicked)
-
-        # connect the length value changed to the length update function
-        #self.slideLength.valueChanged.connect(self.slideLength_changed)
-
-        # init's the data logger for the csv file writing
-        #self.log = ut.Logger()
-        #self.buttonSerialOpen.clicked.connect(self.log.openLogFile)
+        self.portScan()
 
         # Sets up the serial port stream
         self.stream = ut.Streamer(dataHandler=self.parseResponse)
         #self.stream.newdata.connect(self.log.writeLine)
         self.buttonSerialOpen.clicked.connect(self.buttonSerialOpen_clicked)
         self.buttonSerialSend.clicked.connect(self.buttonSerialSend_clicked)
+        self.buttonDriveSend.clicked.connect(self.buttonDriveSend_clicked)
+
+        self.textRxComm.setPlainText(self.boxText)
 
         self.show()
 
     def buttonSerialOpen_clicked(self, port):
         self.stream.changePort(str(self.cbox.currentText()))
         self.stream.start()
+        self.updateText("Serial Port Opened!")
+
+    def updateText(self, newstr):
+        self.boxText += newstr + "\n"
+        self.textRxComm.setPlainText(self.boxText)
 
     def buttonSerialSend_clicked(self):
         self.stream.sendCommand(self.lineEdit_Command.text())
+        self.updateText("Command Sent: " + self.lineEdit_Command.text())
 
-    def portScanner (self):
+    def buttonDriveSend_clicked(self):
+        self.stream.sendCommand(self.rover.createSendDriveCmd(direction=str(self.comboBox.currentText()),
+                                                              duration=int(self.lineDriveDuration.text()),
+                                                              speed=int(self.lineDriveSpeed.text())))
+
+        self.updateText("Drive Command Sent")
+
+    def portScan (self):
         """ Lists serial port names
 
             :raises EnvironmentError:

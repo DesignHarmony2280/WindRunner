@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtCore import QObject, QRunnable, QThread, QThreadPool, pyqtSignal, QDir
 import datetime as dt
 import serial
+from serial.serialutil import portNotOpenError
 import csv
 import os.path
 
@@ -21,9 +22,18 @@ class Streamer(QThread):
         self.ser.port = port
 
     def sendCommand(self, text):
-        b = bytearray()
-        b.extend(map(ord, text))
-        self.ser.write(b)
+        if type(text) != bytearray:
+            b = bytearray()
+            b.extend(map(ord, text))
+            try:
+                self.ser.write(b)
+            except:
+                print("Serial Port not yet opened!")
+        else:
+            try:
+                self.ser.write(text)
+            except:
+                print("Serial Port not yet opened!")
 
     def run(self):
         try:
@@ -38,35 +48,27 @@ class Streamer(QThread):
 
         self.ser.close()
 
-class Logger(QThread):
 
-    csvFolder = None
-    csvFile = None
-    filewriter = None
+class Rover:
 
     def __init__(self):
-        super(Logger, self).__init__()
+        pass
 
-    def setLogFolder(self, folder):
-        self.csvFolder = folder
+    def createSendDriveCmd(self, direction, duration, speed):
+        cmd = bytearray("$0", 'ascii')
+        len = 7
+        cmd += (len + 48).to_bytes(1, 'big')
 
-    def openLogFile(self):
-        if self.csvFolder:
-            i = 0
+        if direction == 'backward':
+            cmd += (48).to_bytes(1, 'big')
+        elif direction == 'left':
+            cmd += (49).to_bytes(1, 'big')
+        elif direction == 'right':
+            cmd += (50).to_bytes(1, 'big')
+        elif direction == 'forward':
+            cmd += (51).to_bytes(1, 'big')
 
-            while os.path.isfile(self.csvFolder + '/' + 'capLog' + str(i).zfill(4) + '.csv')  and i < 4096:
-                i += 1
+        cmd += speed.to_bytes(1, 'big')
+        cmd += duration.to_bytes(2, 'big')
+        return cmd
 
-            self.csvFile = self.csvFolder + '/' + 'capLog' + str(i).zfill(4) + '.csv'
-            with open(self.csvFile, 'w', newline='') as file:
-                self.filewriter = csv.writer(file)
-                self.filewriter.writerow(['Electrode 1', 'Electrode 2', 'Electrode 3', 'Electrode 4', 'Electrode 5',
-                                     'Timestamp'])
-
-    def writeLine(self, list):
-        if self.csvFile:
-            newList = [str(i) for i in list]
-            newList.append(dt.datetime.now().strftime('%d/%m/%Y %H:%M:%S.%f'))
-            with open(self.csvFile, 'a', newline='') as file:
-                self.filewriter = csv.writer(file)
-                self.filewriter.writerow(newList)
