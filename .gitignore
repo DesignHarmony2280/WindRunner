@@ -1,2 +1,5 @@
-__pycache__/
-.idea/
+pythonProjects/__pycache__/
+pythonProjects/.idea/misc.xml
+pythonProjects/.idea/misc.xml
+*xml
+*iml
