@@ -1,13 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, uic
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QObject, QRunnable, QThread, QThreadPool, pyqtSignal, QDir
-import datetime as dt
-import serial
-import pyqtgraph
 import sys
-import glob
-import csv
-import os.path
 import utilities as ut
 
 class Ui(QtWidgets.QMainWindow):
