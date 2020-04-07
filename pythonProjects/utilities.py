@@ -1,10 +1,7 @@
-from PyQt5 import QtWidgets, QtGui, uic
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QObject, QRunnable, QThread, QThreadPool, pyqtSignal, QDir
-import datetime as dt
+from PyQt5.QtCore import QThread, pyqtSignal
 import serial
-import csv
-import os.path
+import sys
+import glob
 
 class Streamer(QThread):
     ser = serial.Serial()
@@ -21,9 +18,47 @@ class Streamer(QThread):
         self.ser.port = port
 
     def sendCommand(self, text):
-        b = bytearray()
-        b.extend(map(ord, text))
-        self.ser.write(b)
+        if type(text) != bytearray:
+            b = bytearray()
+            b.extend(map(ord, text))
+            try:
+                self.ser.write(b)
+            except:
+                print("Serial Port not yet opened!")
+        else:
+            try:
+                self.ser.write(text)
+            except:
+                print("Serial Port not yet opened!")
+
+    def portScan (self):
+
+        """ Lists serial port names
+
+            :raises EnvironmentError:
+                On unsupported or unknown platforms
+            :returns:
+                A list of the serial ports available on the system
+        """
+        if sys.platform.startswith('win'):
+            ports = ['COM%s' % (i + 1) for i in range(256)]
+        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+            # this excludes your current terminal "/dev/tty"
+            ports = glob.glob('/dev/tty[A-Za-z]*')
+        elif sys.platform.startswith('darwin'):
+            ports = glob.glob('/dev/tty.*')
+        else:
+            raise EnvironmentError('Unsupported platform')
+
+        result = []
+        for port in ports:
+            try:
+                s = serial.Serial(port)
+                s.close()
+                result.append(port)
+            except (OSError, serial.SerialException):
+                pass
+        return result
 
     def run(self):
         try:
@@ -38,35 +73,39 @@ class Streamer(QThread):
 
         self.ser.close()
 
-class Logger(QThread):
 
-    csvFolder = None
-    csvFile = None
-    filewriter = None
+class Rover:
 
     def __init__(self):
-        super(Logger, self).__init__()
+        pass
 
-    def setLogFolder(self, folder):
-        self.csvFolder = folder
+    def createSendDriveCmd(self, direction, duration, speed):
 
-    def openLogFile(self):
-        if self.csvFolder:
-            i = 0
+        """
+        Function takes in below described arguments and returns a bytearray with the
+        ASCII Data necessary to command the Windrunner Rover to complete the given
+        command.
 
-            while os.path.isfile(self.csvFolder + '/' + 'capLog' + str(i).zfill(4) + '.csv')  and i < 4096:
-                i += 1
+        :param direction:
+        :param duration:
+        :param speed:
+        :return: ASCII Bytearray Command
+        """
 
-            self.csvFile = self.csvFolder + '/' + 'capLog' + str(i).zfill(4) + '.csv'
-            with open(self.csvFile, 'w', newline='') as file:
-                self.filewriter = csv.writer(file)
-                self.filewriter.writerow(['Electrode 1', 'Electrode 2', 'Electrode 3', 'Electrode 4', 'Electrode 5',
-                                     'Timestamp'])
+        cmd = bytearray("$0", 'ascii')
+        len = 7
+        cmd += (len + 48).to_bytes(1, 'big')
 
-    def writeLine(self, list):
-        if self.csvFile:
-            newList = [str(i) for i in list]
-            newList.append(dt.datetime.now().strftime('%d/%m/%Y %H:%M:%S.%f'))
-            with open(self.csvFile, 'a', newline='') as file:
-                self.filewriter = csv.writer(file)
-                self.filewriter.writerow(newList)
+        if direction == 'backward':
+            cmd += (48).to_bytes(1, 'big')
+        elif direction == 'left':
+            cmd += (49).to_bytes(1, 'big')
+        elif direction == 'right':
+            cmd += (50).to_bytes(1, 'big')
+        elif direction == 'forward':
+            cmd += (51).to_bytes(1, 'big')
+
+        cmd += speed.to_bytes(1, 'big')
+        cmd += duration.to_bytes(2, 'big')
+        return cmd
+

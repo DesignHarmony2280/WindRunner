@@ -74,7 +74,7 @@
      <string>Open</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="buttonDriveSend">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -84,7 +84,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Send</string>
     </property>
    </widget>
    <widget class="QComboBox" name="comboBox">
@@ -98,22 +98,22 @@
     </property>
     <item>
      <property name="text">
-      <string>Backwards</string>
+      <string>backward</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Left</string>
+      <string>left</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Right</string>
+      <string>right</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Forward</string>
+      <string>forward</string>
      </property>
     </item>
    </widget>
@@ -130,7 +130,7 @@
      <string>Direction</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="lineDriveDuration">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -178,7 +178,7 @@
      <string>Send</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="lineDriveSpeed">
     <property name="geometry">
      <rect>
       <x>190</x>
