@@ -13,6 +13,7 @@ import utilities as ut
 class Ui(QtWidgets.QMainWindow):
 
     boxText = ""
+    comPorts = []
 
     def __init__(self):
         super(Ui, self).__init__()
@@ -22,11 +23,14 @@ class Ui(QtWidgets.QMainWindow):
 
         # Inits and populates the box with available COM Ports
         self.cbox = self.comboBox_COM
-        self.portScan()
 
         # Sets up the serial port stream
         self.stream = ut.Streamer(dataHandler=self.parseResponse)
-        #self.stream.newdata.connect(self.log.writeLine)
+        self.comPorts = self.stream.portScan()
+
+        for x in self.comPorts:
+            self.comboBox_COM.addItem(x)
+
         self.buttonSerialOpen.clicked.connect(self.buttonSerialOpen_clicked)
         self.buttonSerialSend.clicked.connect(self.buttonSerialSend_clicked)
         self.buttonDriveSend.clicked.connect(self.buttonDriveSend_clicked)
@@ -35,10 +39,13 @@ class Ui(QtWidgets.QMainWindow):
 
         self.show()
 
-    def buttonSerialOpen_clicked(self, port):
+    def buttonSerialOpen_clicked(self, port): #todo: Figure out why this causes crashes...
         self.stream.changePort(str(self.cbox.currentText()))
-        self.stream.start()
-        self.updateText("Serial Port Opened!")
+        try:
+            self.stream.start()
+            self.updateText("Serial Port Opened!")
+        except: #todo: create closeout and reopen procedure.
+            self.updateText("Restart for Port Change.")
 
     def updateText(self, newstr):
         self.boxText += newstr + "\n"
@@ -54,34 +61,6 @@ class Ui(QtWidgets.QMainWindow):
                                                               speed=int(self.lineDriveSpeed.text())))
 
         self.updateText("Drive Command Sent")
-
-    def portScan (self):
-        """ Lists serial port names
-
-            :raises EnvironmentError:
-                On unsupported or unknown platforms
-            :returns:
-                A list of the serial ports available on the system
-        """
-        if sys.platform.startswith('win'):
-            ports = ['COM%s' % (i + 1) for i in range(256)]
-        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-            # this excludes your current terminal "/dev/tty"
-            ports = glob.glob('/dev/tty[A-Za-z]*')
-        elif sys.platform.startswith('darwin'):
-            ports = glob.glob('/dev/tty.*')
-        else:
-            raise EnvironmentError('Unsupported platform')
-
-        result = []
-        for port in ports:
-            try:
-                s = serial.Serial(port)
-                s.close()
-                self.cbox.addItem(port)
-            except (OSError, serial.SerialException):
-                pass
-        return result
 
     def parseResponse(self, text):
         print(text)

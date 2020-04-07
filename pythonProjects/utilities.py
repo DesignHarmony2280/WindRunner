@@ -1,11 +1,7 @@
-from PyQt5 import QtWidgets, QtGui, uic
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QObject, QRunnable, QThread, QThreadPool, pyqtSignal, QDir
-import datetime as dt
+from PyQt5.QtCore import QThread, pyqtSignal
 import serial
-from serial.serialutil import portNotOpenError
-import csv
-import os.path
+import sys
+import glob
 
 class Streamer(QThread):
     ser = serial.Serial()
@@ -35,6 +31,35 @@ class Streamer(QThread):
             except:
                 print("Serial Port not yet opened!")
 
+    def portScan (self):
+
+        """ Lists serial port names
+
+            :raises EnvironmentError:
+                On unsupported or unknown platforms
+            :returns:
+                A list of the serial ports available on the system
+        """
+        if sys.platform.startswith('win'):
+            ports = ['COM%s' % (i + 1) for i in range(256)]
+        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+            # this excludes your current terminal "/dev/tty"
+            ports = glob.glob('/dev/tty[A-Za-z]*')
+        elif sys.platform.startswith('darwin'):
+            ports = glob.glob('/dev/tty.*')
+        else:
+            raise EnvironmentError('Unsupported platform')
+
+        result = []
+        for port in ports:
+            try:
+                s = serial.Serial(port)
+                s.close()
+                result.append(port)
+            except (OSError, serial.SerialException):
+                pass
+        return result
+
     def run(self):
         try:
             self.ser.open()
@@ -55,6 +80,18 @@ class Rover:
         pass
 
     def createSendDriveCmd(self, direction, duration, speed):
+
+        """
+        Function takes in below described arguments and returns a bytearray with the
+        ASCII Data necessary to command the Windrunner Rover to complete the given
+        command.
+
+        :param direction:
+        :param duration:
+        :param speed:
+        :return: ASCII Bytearray Command
+        """
+
         cmd = bytearray("$0", 'ascii')
         len = 7
         cmd += (len + 48).to_bytes(1, 'big')

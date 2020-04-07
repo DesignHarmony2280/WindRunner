@@ -122,7 +122,6 @@ bool rxPacket() {
           dur = (dur * 256) + Serial.read();
         }
 
-        Serial.println(dur);
         drive(dir, spd);
         driveTimer->start(dur);
         break;
