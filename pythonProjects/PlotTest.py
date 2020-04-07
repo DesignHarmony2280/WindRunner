@@ -61,6 +61,7 @@ def initGui():
     app = QtWidgets.QApplication(sys.argv)
     window = Ui()
     window.setWindowTitle("Windrunner Test GUI")
-    #window.setWindowIcon(QtGui.QIcon("icon.jpg"))
+    window.setWindowIcon(QtGui.QIcon("sun.jpg"))
+    window.setFixedSize(window.size())
     window.show()
     app.exec_()
