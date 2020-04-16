@@ -9,8 +9,8 @@ class Packet {
 
 public:
   Packet(uint8_t id, uint8_t *data, uint8_t len) {
-    this->id = id;
-    this->len = len + 3;
+    this->id = id + 48;   // ascii offset
+    this->len = len + 3;  // header offset
     this->data = data;
   }
 
@@ -72,8 +72,10 @@ Timer* driveTimer = new Timer();
 Timer* msgTimer = new Timer();
 
 uint8_t data [] = {1};
+uint8_t compass [] = {48, 48, 49, 49, 50, 50};
 
 Packet* driveStat = new Packet (0, data, sizeof(data));
+Packet* compData = new Packet (2, compass, sizeof(compass));
 
 void setup() {
   Serial.begin(9600);
@@ -83,6 +85,8 @@ void loop() {
   // put your main code here, to run repeatedly:
   //Serial.println((analogRead(A1)/255.0)*100);
 
+  //txPacket(compData);
+
   if(Serial.available())
     rxPacket();
 
@@ -90,15 +94,18 @@ void loop() {
     drive(BKW, 0); // stop driving
     txPacket(driveStat);
   }
+
+  delay(100);
 }
 
 void txPacket (Packet *msg) {
-  Serial.print('$');
-  Serial.print(msg->id);
-  Serial.print(msg->len);
+  Serial.write('$');
+  Serial.write(msg->id);
+  Serial.write(msg->len);
   for (uint8_t i = 0; i < msg->len - 3; i++){
-    Serial.print(msg->data[i]);
+    Serial.write(msg->data[i]);
   }
+  Serial.println(); // crucial for python GUI readline
 }
 
 bool rxPacket() {

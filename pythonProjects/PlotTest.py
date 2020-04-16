@@ -55,7 +55,19 @@ class Ui(QtWidgets.QMainWindow):
         self.updateText("Drive Command Sent")
 
     def parseResponse(self, text):
-        print(text)
+
+        if(text[0] == 36):  # If '$' is received
+            if(text[1] == 48):      # If CMD == 0
+                if(text[3] == 1):
+                    self.updateText("Drive Command Successful")
+                else:
+                    self.updateText("Error")
+            elif(text[1] == 49):    # If CMD == 1
+                print("Orientation Command Received")
+            elif(text[2] == 50):    # If CMD == 2
+                print("Compass Command Received")
+            elif(text[3] == 51):    # If CMD == 3
+                print("Sensor Command Received")
 
 def initGui():
     app = QtWidgets.QApplication(sys.argv)

@@ -8,7 +8,7 @@ class Streamer(QThread):
     ser.baudrate = 9600
     ser.port = 'COM7'
 
-    newdata = pyqtSignal(str)
+    newdata = pyqtSignal(bytearray)
 
     def __init__(self, dataHandler):
         super(Streamer, self).__init__()
@@ -68,7 +68,8 @@ class Streamer(QThread):
 
         while True:
             if self.ser.in_waiting:
-                msg = str(self.ser.readline())
+                self.ser.flush()
+                msg = bytearray(self.ser.readline())
                 self.newdata.emit(msg)
 
         self.ser.close()
@@ -109,3 +110,38 @@ class Rover:
         cmd += duration.to_bytes(2, 'big')
         return cmd
 
+    def createSendPosCmd(self):
+
+        """
+        Function returns a bytearray command which will request the rover to send positional data as described in
+        the MAN.md file.
+
+        :return: ASCII Bytearray Command
+        """
+
+        cmd = bytearray("$1", 'ascii')
+        return cmd
+
+    def createSendOriCmd(self):
+
+        """
+        Function returns a bytearray command which will request the rover to send orientation data as described in
+        the MAN.md file.
+
+        :return: ASCII Bytearray Command
+        """
+
+        cmd = bytearray("$2", 'ascii')
+        return cmd
+
+    def createSendSenseCmd(self):
+
+        """
+        Function returns a bytearray command which will request the rover to send orientation data as described in
+        the MAN.md file.
+
+        :return: ASCII Bytearray Command
+        """
+
+        cmd = bytearray("$3", 'ascii')
+        return cmd
