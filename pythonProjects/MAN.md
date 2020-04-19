@@ -67,3 +67,18 @@ Very simple, just a ping to the rover that the program would like the position o
 The wind speed will be a scaled 8 bit number representing 0 - 32.4 m/s wind speed
 The light intensity will be an 8 bit number representing 0 - 6000 Lux
 The temperature data will be an 8 bit number representing 0 - 100 deg C
+
+### Handling the Signals
+Rover.py init function allows the passing of four different member slots, which will be available to handle the data
+incoming from the Windrunner rover by the implementing program.
+
+Each of the handlers for this must deal with the emitted values from each of the signals as follows:
+
+driveResponse will emit a 0 if command was successful, 1 if not.
+
+positionResponse will emit a two item list consisting of [lattitude longitude]
+
+orientationResponse will emit a three item list consisting of [x y z] data, which represents the magnetometer
+orientation.
+
+sensorResponse will emit a three item list consisting of [wind light temp], having the values described above.

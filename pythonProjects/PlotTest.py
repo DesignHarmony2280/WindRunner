@@ -9,26 +9,37 @@ class Ui(QtWidgets.QMainWindow):
 
     def __init__(self):
         super(Ui, self).__init__()
+        # Loads up the Qt gui design from designer.
         uic.loadUi('gui.ui', self)
 
-        self.rover = ut.Rover()
+        # Instantiates the rover class with the proper data handlers
+        self.rover = ut.Rover(driveHandler=self.updateDriveStatus, positionHandler=self.updatePositionStatus,
+                              orientationHandler=self.updateOrientationStatus, sensorHandler=self.updateSensorStatus)
 
         # Inits and populates the box with available COM Ports
         self.cbox = self.comboBox_COM
 
         # Sets up the serial port stream
-        self.stream = ut.Streamer(dataHandler=self.parseResponse)
+        self.stream = ut.Streamer(dataHandler=self.rover.parseResponse)
+        # Populates the COM Port list with the available COM ports
         self.comPorts = self.stream.portScan()
 
+        # Adds all COM Ports to the combo box
         for x in self.comPorts:
             self.comboBox_COM.addItem(x)
 
+        # Sets up all of the necessary signal -> slot connections for the GUI buttons
         self.buttonSerialOpen.clicked.connect(self.buttonSerialOpen_clicked)
         self.buttonSerialSend.clicked.connect(self.buttonSerialSend_clicked)
         self.buttonDriveSend.clicked.connect(self.buttonDriveSend_clicked)
+        self.buttonGetSense.clicked.connect(self.buttonGetSense_clicked)
+        self.buttonGetPos.clicked.connect(self.buttonGetPos_clicked)
+        self.buttonGetOri.clicked.connect(self.buttonGetOri_clicked)
 
+        # Sets up the status box
         self.textRxComm.setPlainText(self.boxText)
 
+        # Shows the GUI
         self.show()
 
     def buttonSerialOpen_clicked(self, port): #todo: Figure out why this causes crashes...
@@ -52,22 +63,31 @@ class Ui(QtWidgets.QMainWindow):
                                                               duration=int(self.lineDriveDuration.text()),
                                                               speed=int(self.lineDriveSpeed.text())))
 
-        self.updateText("Drive Command Sent")
+    def buttonGetSense_clicked(self):
+        self.stream.sendCommand(self.rover.createSendSenseCmd())
 
-    def parseResponse(self, text):
+    def buttonGetPos_clicked(self):
+        self.stream.sendCommand(self.rover.createSendPosCmd())
 
-        if(text[0] == 36):  # If '$' is received
-            if(text[1] == 48):      # If CMD == 0
-                if(text[3] == 1):
-                    self.updateText("Drive Command Successful")
-                else:
-                    self.updateText("Error")
-            elif(text[1] == 49):    # If CMD == 1
-                print("Orientation Command Received")
-            elif(text[2] == 50):    # If CMD == 2
-                print("Compass Command Received")
-            elif(text[3] == 51):    # If CMD == 3
-                print("Sensor Command Received")
+    def buttonGetOri_clicked(self):
+        self.stream.sendCommand(self.rover.createSendOriCmd())
+
+    # The following functions exist as slots to allow incoming data from the rover class to be handled in this thread
+    def updateDriveStatus(self, code):
+        if code == 0:
+            self.updateText("Drive Command Successful")
+        elif code == 1:
+            self.updateText("Drive Error Occurred")
+
+    def updatePositionStatus(self, vals):
+        print(vals)
+
+    def updateOrientationStatus(self, vals):
+        print(vals)
+
+    def updateSensorStatus(self, vals):
+        print(vals)
+    # ---------------------------------------------------------------------------------------------------------------
 
 def initGui():
     app = QtWidgets.QApplication(sys.argv)

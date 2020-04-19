@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>491</width>
-    <height>385</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -198,17 +198,17 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>150</y>
+      <y>220</y>
       <width>341</width>
-      <height>192</height>
+      <height>171</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLCDNumber" name="lcdNumber">
+   <widget class="QLCDNumber" name="lcdTemp">
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>170</y>
+      <y>180</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -223,11 +223,11 @@
      <double>19.620000000000001</double>
     </property>
    </widget>
-   <widget class="QLCDNumber" name="lcdNumber_2">
+   <widget class="QLCDNumber" name="lcdLight">
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>240</y>
+      <y>250</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -246,7 +246,7 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>150</y>
+      <y>160</y>
       <width>101</width>
       <height>16</height>
      </rect>
@@ -259,7 +259,7 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>220</y>
+      <y>230</y>
       <width>111</width>
       <height>16</height>
      </rect>
@@ -272,7 +272,7 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>290</y>
+      <y>300</y>
       <width>111</width>
       <height>16</height>
      </rect>
@@ -281,11 +281,11 @@
      <string>Wind Speed (m/s)</string>
     </property>
    </widget>
-   <widget class="QLCDNumber" name="lcdNumber_3">
+   <widget class="QLCDNumber" name="lcdWind">
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>310</y>
+      <y>330</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -300,7 +300,7 @@
      <enum>QLCDNumber::Flat</enum>
     </property>
     <property name="value" stdset="0">
-     <double>10.199999999999999</double>
+     <double>10.000000000000000</double>
     </property>
     <property name="intValue" stdset="0">
      <number>10</number>
@@ -313,9 +313,9 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>20</y>
+      <y>30</y>
       <width>91</width>
-      <height>121</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="maximumSize">
@@ -350,20 +350,114 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>350</y>
+      <y>400</y>
       <width>231</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>University of Rhode Island - ELE 408</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="buttonGetSense">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>370</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Get</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonGetPos">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>150</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Get Pos.</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>150</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>150</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonGetOri">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>190</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Get Ori.</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_4">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>190</y>
+      <width>251</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources>
-  <include location="logo.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -1,8 +1,14 @@
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, pyqtSignal
 import serial
 import sys
 import glob
 
+'''
+Class: Streamer
+
+Provides all of the necessary functions to deal with a COM port on Linux or Windows systems, as well as send commands
+to a Rover class item.
+'''
 class Streamer(QThread):
     ser = serial.Serial()
     ser.baudrate = 9600
@@ -14,9 +20,15 @@ class Streamer(QThread):
         super(Streamer, self).__init__()
         self.newdata.connect(dataHandler)
 
+    '''
+    Changes the serial port to that specified
+    '''
     def changePort(self, port):
         self.ser.port = port
 
+    '''
+    Simply writes a text command over the serial port to a Rover Class Item
+    '''
     def sendCommand(self, text):
         if type(text) != bytearray:
             b = bytearray()
@@ -31,6 +43,9 @@ class Streamer(QThread):
             except:
                 print("Serial Port not yet opened!")
 
+    '''
+    Scans the host device to find all available serial ports, returns a list of the names of each port.
+    '''
     def portScan (self):
 
         """ Lists serial port names
@@ -75,9 +90,27 @@ class Streamer(QThread):
         self.ser.close()
 
 
-class Rover:
+class Rover(QObject):
+
+    # Signal Definitions - See manual for handling instructions...
+    driveResponse = pyqtSignal(int)
+    positionResponse = pyqtSignal(list)
+    orientationResponse = pyqtSignal(list)
+    sensorResponse = pyqtSignal(list)
 
     def __init__(self):
+        super(Rover, self).__init__()
+        pass
+
+    '''
+    Rover constructor which allows the passing of handler functions for when the windrunner sends valid commands back
+    '''
+    def __init__(self, driveHandler, positionHandler, orientationHandler, sensorHandler):
+        super(Rover, self).__init__()
+        self.driveResponse.connect(driveHandler)
+        self.positionResponse.connect(positionHandler)
+        self.orientationResponse.connect(orientationHandler)
+        self.sensorResponse.connect(sensorHandler)
         pass
 
     def createSendDriveCmd(self, direction, duration, speed):
@@ -119,8 +152,7 @@ class Rover:
         :return: ASCII Bytearray Command
         """
 
-        cmd = bytearray("$1", 'ascii')
-        return cmd
+        return bytearray("$10", 'ascii')
 
     def createSendOriCmd(self):
 
@@ -131,8 +163,7 @@ class Rover:
         :return: ASCII Bytearray Command
         """
 
-        cmd = bytearray("$2", 'ascii')
-        return cmd
+        return bytearray("$20", 'ascii')
 
     def createSendSenseCmd(self):
 
@@ -143,5 +174,33 @@ class Rover:
         :return: ASCII Bytearray Command
         """
 
-        cmd = bytearray("$3", 'ascii')
-        return cmd
+        return bytearray("$30", 'ascii')
+
+    '''
+    Parses an incoming text string for data from the windrunner rover.
+    '''
+    def parseResponse(self, text):
+
+        if(text[0] == 36):  # If '$' is received
+            if(text[1] == 48):      # If CMD == 0
+                self.driveResponse.emit(text[3])
+            elif(text[1] == 49):    # If CMD == 1
+                lat = 0
+                lon = 0
+                for i in range(3,6):
+                    lat = (lat*256) + text[i]
+                for i in range(7,10):
+                    lon = (lon*256) + text[i]
+                self.positionResponse.emit([lat, lon])
+            elif(text[1] == 50):    # If CMD == 2
+                x = text[3]*256 + text[4]
+                y = text[5]*256 + text[6]
+                z = text[7]*256 + text[8]
+                self.orientationResponse.emit([x,y,z])
+            elif(text[1] == 51):    # If CMD == 3
+                wind = (int(text[3])/256)*32.4
+                light = (int(text[4])/256)*6000
+                temp = (int(text[5])/256)*100
+                self.sensorResponse.emit([wind, light, temp])
+        else:
+            print(text)
