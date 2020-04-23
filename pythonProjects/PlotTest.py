@@ -83,7 +83,10 @@ class Ui(QtWidgets.QMainWindow):
         print(vals)
 
     def updateOrientationStatus(self, val):
-        print(val)
+        ori = (-val + 360) + 83
+        if ori > 360:
+            ori = ori - 360
+        print (ori)
 
     def updateSensorStatus(self, vals):
         print(vals)
