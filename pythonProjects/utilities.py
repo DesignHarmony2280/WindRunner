@@ -95,7 +95,7 @@ class Rover(QObject):
     # Signal Definitions - See manual for handling instructions...
     driveResponse = pyqtSignal(int)
     positionResponse = pyqtSignal(list)
-    orientationResponse = pyqtSignal(list)
+    orientationResponse = pyqtSignal(float)
     sensorResponse = pyqtSignal(list)
 
     def __init__(self):
@@ -194,9 +194,7 @@ class Rover(QObject):
                 self.positionResponse.emit([lat, lon])
             elif(text[1] == 50):    # If CMD == 2
                 x = text[3]*256 + text[4]
-                y = text[5]*256 + text[6]
-                z = text[7]*256 + text[8]
-                self.orientationResponse.emit([x,y,z])
+                self.orientationResponse.emit(x/100.0)
             elif(text[1] == 51):    # If CMD == 3
                 wind = (int(text[3])/256)*32.4
                 light = (int(text[4])/256)*6000

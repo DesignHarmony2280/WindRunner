@@ -82,8 +82,8 @@ class Ui(QtWidgets.QMainWindow):
     def updatePositionStatus(self, vals):
         print(vals)
 
-    def updateOrientationStatus(self, vals):
-        print(vals)
+    def updateOrientationStatus(self, val):
+        print(val)
 
     def updateSensorStatus(self, vals):
         print(vals)

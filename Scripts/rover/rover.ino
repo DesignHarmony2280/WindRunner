@@ -1,4 +1,7 @@
 #include <SoftwareSerial.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_HMC5883_U.h>
 
 /**
     CLASS: Packet
@@ -61,12 +64,10 @@ typedef enum {
 
 void txPacket (Packet msg);
 
-void drive(way dir, uint8_t spd) {
-  digitalWrite(4, (dir & 2) >> 1);
-  analogWrite(5, spd);
-  digitalWrite(7, dir & 1);
-  analogWrite(6, spd);
-}
+void drive(way dir, uint8_t spd);
+
+/* Assign a unique ID to this sensor at the same time */
+Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
 float getTemp();
 float getLight();
@@ -75,9 +76,9 @@ float getWind();
 Timer* driveTimer   = new Timer();
 Timer* msgTimer     = new Timer();
 
-uint8_t data []     = {1};
+uint8_t data []     = {0};
 uint8_t pos []      = {48, 48, 49, 49, 50, 50, 51, 51};
-uint8_t compass []  = {48, 48, 49, 49, 50, 50};
+uint8_t compass []  = {48, 48};
 uint8_t sense []    = {48, 48, 49};
 
 Packet* driveStat   = new Packet (0, data,    sizeof(data));
@@ -89,6 +90,14 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(13, OUTPUT);
+
+    /* Initialise the sensor */
+  if(!mag.begin())
+  {
+    /* There was a problem detecting the HMC5883 ... check your connections */
+    Serial.println("Ooops, no HMC5883 detected ... Check your wiring!");
+    while(1);
+  }
 }
 
 void loop() {
@@ -103,7 +112,7 @@ void loop() {
 
   if (driveTimer->isRun && driveTimer->check()) {
     drive(BKW, 0); // stop driving
-    data[0] = 1;
+    data[0] = 0;
     txPacket(driveStat);
   }
 
@@ -146,6 +155,7 @@ bool rxPacket() {
       posData = new Packet (1, pos, sizeof(pos));
       txPacket(posData);
     } else if (id == 50) {
+      getOrientation();
       compData = new Packet (2, compass, sizeof(compass));
       txPacket(compData);
     } else if (id == 51) { // Sensor Command
@@ -160,4 +170,43 @@ bool rxPacket() {
   } else {
     return (false);
   }
+}
+
+void drive(way dir, uint8_t spd) {
+  digitalWrite(4, (dir & 2) >> 1);
+  analogWrite(5, spd);
+  digitalWrite(7, dir & 1);
+  analogWrite(6, spd);
+}
+
+float getOrientation (){
+  /* Get a new sensor event */ 
+  sensors_event_t event; 
+  mag.getEvent(&event);
+  
+   // Hold the module so that Z is pointing 'up' and you can measure the heading with x&y
+  // Calculate heading when the magnetometer is level, then correct for signs of axis.
+  float heading = atan2(event.magnetic.y, event.magnetic.x);
+  
+  // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
+  // Find yours here: http://www.magnetic-declination.com/
+  // Mine is: -13* 2' W, which is ~13 Degrees, or (which we need) 0.22 radians
+  // If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
+  float declinationAngle = 0.22;
+  heading += declinationAngle;
+  
+  // Correct for when signs are reversed.
+  if(heading < 0)
+    heading += 2*PI;
+    
+  // Check for wrap due to addition of declination.
+  if(heading > 2*PI)
+    heading -= 2*PI;
+   
+  // Convert radians to degrees for readability.
+  float headingDegrees = heading * 180/M_PI; 
+
+  int deg = headingDegrees*100;
+  compass[0] = (deg & 0xFF00) >> 8; // MSB
+  compass[1] = (deg & 0x00FF);      // LSB
 }
