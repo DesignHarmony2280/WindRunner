@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/reset.css') }}">
+    <title>TTDG Rover</title>
+</head>
+<body>
+    <section>
+    <h1 style="font-size: 28px; margin-bottom: 10px">Rover Initialization:</h1>
+    <h1> Control Selection: </h1>
+        <form action="/collect_data" method="POST">
+            <table style="width: 75%">
+                <tr>
+                    <th>
+                        <input type="radio" name="control_type" value="autonomous" id="autonomous" checked>
+                        <label style="font-size: 18px; font-weight: bold" for="autonomous">Autonomous </label>
+                    </th>
+                    <th>
+                        <input type="radio" name="control_type" value="remote" id="remote">
+                        <label style="font-size: 18px; font-weight: bold" for="remote">Remote </label>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <h2> Parameters: </h2>
+                        <div style="padding-left: 25px">
+                            <table style="width: 100%">
+                                <tr>
+                                    <td>
+                                        <label for="num_of_cols">Number of Columns: </label>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="num_of_cols" id="num_of_cols">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="num_of_rows">Number of Rows: </label>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="num_of_rows" id="num_of_rows">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                    <td>
+                        <h2> Parameters: </h2>
+                        <div style="padding-left: 25px">
+                            <table style="width: 100%">
+                                <tr>
+                                    <td>
+                                        <label for="direction">Direction: </label>
+                                    </td>
+                                    <td>
+                                        <select name="direction" id="direction">
+                                            <option value="forward">Forward</option>
+                                            <option value="backward">Backward</option>
+                                            <option value="left">Left</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="duration">Duration: </label>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="duration" id="duration">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="speed">Speed: </label>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="speed" id="speed">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="num_points">Number of Points: </label>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="num_points" id="num_points">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <button name="Move" style="margin-bottom: 10px"> Update </button>
+        </form>
+    <h1>Current Sensor Data: </h1>
+    <div style="padding-left: 25px; margin-bottom: 10px">
+        <h3>Latitude: {{ latitude }}</h3>
+        <h3>Longitude: {{ longitude }}</h3>
+        <h3>Orientation: {{ orientation }}</h3>
+        <h3>Temperature: {{ temperature }}</h3>
+        <h3>Light Intensity: {{ light_intensity }}</h3>
+        <h3>Wind Speed: {{ wind_speed }}</h3>
+    </div>
+    </section>
+</body>
+</html>

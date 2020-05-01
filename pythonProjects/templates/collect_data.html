@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" http-equiv="refresh" content="5">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/reset.css') }}">
+    <title>TTDG Rover</title>
+</head>
+<body>
+    <section>
+    <h1 style="font-size: 28px; margin-bottom: 10px">Rover Data:</h1>
+    <h1>Current Sensor Data: </h1>
+    <div style="padding-left: 25px; margin-bottom: 10px">
+        <h3>Latitude: {{ latitude }}</h3>
+        <h3>Longitude: {{ longitude }}</h3>
+        <h3>Orientation: {{ orientation }}</h3>
+        <h3>Temperature: {{ temperature }}</h3>
+        <h3>Light Intensity: {{ light_intensity }}</h3>
+        <h3>Wind Speed: {{ wind_speed }}</h3>
+    </div>
+    <h1>Sensor Data Visualizations: </h1>
+        <h2>Temperature: </h2>
+        <img src="{{ temperature_img }}" alt="Temperature Data Visualization">
+        <h2>Light Intensity: </h2>
+        <img src="{{ light_intensity_img }}" alt="Light Intensity Visualization">
+        <h2>Wind Speed: </h2>
+        <img src="{{ wind_speed_img }}" alt="Wind Speed Visualization">
+    <form action="/" method="POST">
+        <button name="Return" style="margin-bottom: 10px"> Return </button>
+    </form>
+    </section>
+</body>
+</html>
