@@ -105,11 +105,11 @@ class RoverControl(QtWidgets.QMainWindow):
         :param num_of_rows: Number of columns within the collection grid
         :return:
         """
-        moving_duration: int = 3
-        moving_speed: int = 3
+        moving_duration: int = 4000
+        moving_speed: int = 200
 
-        turning_duration: int = 1
-        turning_speed: int = 1
+        turning_duration: int = 600
+        turning_speed: int = 150
 
         i: int = num_of_cols
         while True:

@@ -71,9 +71,6 @@ def generateVisualization(data: typing.List, label: str, output_path: str, plt_t
         while len(y) > len(data):
             y.pop()
 
-        print(f"X: {x}")
-        print(f"Y: {y}")
-
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.set_xlabel("Column")
